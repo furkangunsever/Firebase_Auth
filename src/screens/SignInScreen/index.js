@@ -9,15 +9,24 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
+import auth from '@react-native-firebase/auth';
 
 const SignIn = () => {
   const navigation = useNavigation();
-  const initialFormValues={
-    usermail:"",
-    password:"",
-  }
-  function handleFormSubmit(FormValues) {
-    console.log(FormValues);
+  const initialFormValues = {
+    usermail: '',
+    password: '',
+  };
+  async function handleFormSubmit(formValues) {
+    try {
+      await auth().createUserWithEmailAndPassword(
+        formValues.usermail,
+        formValues.password,
+      );
+      navigation.navigate('Login');
+    } catch (error) {
+      console.log(error);
+    }
   }
   // const [username, setUsername] = useState('');
   // const [password, setPassword] = useState('');
