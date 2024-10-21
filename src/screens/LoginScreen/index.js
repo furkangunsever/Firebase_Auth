@@ -1,5 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
+import {showMessage} from 'react-native-flash-message';
 import {
   View,
   Text,
@@ -11,14 +12,30 @@ import {
 } from 'react-native';
 import {Formik} from 'formik';
 import auth from '@react-native-firebase/auth';
+import authErrorMessageParser from '../../utils/authErrorMessageParser';
 const LoginScreen = () => {
   const navigation = useNavigation();
   const initialFormValues = {
     usermail: '',
     password: '',
   };
-  function handleFormSubmit(formValues) {
-    console.log(formValues);
+  const [loading, setLoading] = useState(false);
+  async function handleFormSubmit(formValues) {
+    try {
+      setLoading(true);
+      await auth().signInWithEmailAndPassword(
+        formValues.usermail,
+        formValues.password,
+      );
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      showMessage({
+        message: authErrorMessageParser(error.code),
+        type: 'danger',
+      });
+      setLoading(false);
+    }
   }
   // const [username, setUsername] = useState('');
   // const [password, setPassword] = useState('');
@@ -51,7 +68,10 @@ const LoginScreen = () => {
               secureTextEntry
             />
 
-            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleSubmit}
+              loading={loading}>
               <Text style={styles.buttonText}>Giriş Yap</Text>
             </TouchableOpacity>
           </>
